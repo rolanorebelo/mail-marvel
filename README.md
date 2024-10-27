@@ -12,20 +12,20 @@ The idea for Mail Marvel came from the overwhelming number of emails that users 
 - Uses AI to improve filtering accuracy over time.
 
 ## Built with
-- **Languages**: Python, JavaScript
+- **Languages**: Python
 - **Frameworks**:
   - **Frontend**: Streamlit for building the user interface
-  - **Backend**: Flask (if applicable) or any other relevant framework
+  - **Backend**: Python
 - **Cloud Services**: Google Cloud Platform (for hosting services, if used)
 - **APIs**: 
   - Gmail API for accessing and managing emails
   - OpenAI API for natural language processing and classification
 - **Databases**: 
-  - SQLite or PostgreSQL (depending on your choice) for storing user data and classifications
+  - MongoDB
 - **Libraries**:
   - Langchain for handling language models
   - Pandas for data manipulation and analysis
-  - Plotly for visualizations (if applicable)
+  - Plotly for visualizations
 
 ## Challenges we ran into
 - Integrating the Gmail API for accessing emails.
@@ -48,10 +48,9 @@ The idea for Mail Marvel came from the overwhelming number of emails that users 
 - Continuously improving the AI model based on user interactions.
 
 ## Built With
-- **Languages:** JavaScript, Python
-- **Frameworks:** React.js, Flask
+- **Languages:**  Python
+- **Frameworks:** Streamlit
 - **Databases:** MongoDB
-- **Cloud Services:** AWS, Twilio
 - **APIs:** Gmail API
 
 ## License
