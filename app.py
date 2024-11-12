@@ -19,8 +19,6 @@ import pickle
 from datetime import datetime, timedelta
 import plotly.express as px 
 import calendar
-# Set OpenAI API Key
-import streamlit as st
 
 
 # If modifying these scopes, delete the file token.pickle.
@@ -31,13 +29,12 @@ SCOPES = [
     'https://www.googleapis.com/auth/gmail.modify',
 ]
 
-# Load MongoDB URI from Streamlit secrets
-uri = st.secrets["MONGODB_URI"]
+# Load environment variables from .env file
+dotenv.load_dotenv()
+uri = os.getenv("MONGODB_URI")
 client = MongoClient(uri)
-
-# Connect to the correct database and collection
-mydb = client["inbox-intel"]
-mycol = mydb["mongodb_project"]
+mydb = client["hackathon"]
+mycol = mydb["filtered_emails"]
 
 def create_calendar_view(classified_emails):
     """
@@ -162,6 +159,9 @@ def create_calendar_view(classified_emails):
     except Exception as e:
         st.error(f"Error creating calendar view: {str(e)}")
 
+
+# Set OpenAI API Key
+import streamlit as st
 
 if "OPENAI_API_KEY" in st.secrets:
     openai_api_key = st.secrets["OPENAI_API_KEY"]
