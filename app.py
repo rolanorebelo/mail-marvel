@@ -31,7 +31,7 @@ SCOPES = [
 
 # Load environment variables from .env file
 dotenv.load_dotenv()
-uri = os.getenv("MONGODB_URI")
+uri = st.secrets["MONGODB_URI"]
 client = MongoClient(uri)
 mydb = client["hackathon"]
 mycol = mydb["filtered_emails"]
@@ -161,11 +161,13 @@ def create_calendar_view(classified_emails):
 
 
 # Set OpenAI API Key
-openai_api_key = os.getenv("OPENAI_API_KEY")
-if openai_api_key:
+import streamlit as st
+
+if "OPENAI_API_KEY" in st.secrets:
+    openai_api_key = st.secrets["OPENAI_API_KEY"]
     os.environ["OPENAI_API_KEY"] = openai_api_key
 else:
-    raise ValueError("OpenAI API key not found in environment variables.")
+    raise ValueError("OpenAI API key not found in secrets.")
 
 # Define the email classification structure
 class EmailClassification(BaseModel):
