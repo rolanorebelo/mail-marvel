@@ -44,4 +44,4 @@ pydantic
 python-dateutil
 pymongo
 pickle-mixin
-calendar
+langchain
