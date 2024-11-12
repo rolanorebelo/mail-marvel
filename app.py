@@ -31,11 +31,13 @@ SCOPES = [
     'https://www.googleapis.com/auth/gmail.modify',
 ]
 
-# Load environment variables from .env file
+# Load MongoDB URI from Streamlit secrets
 uri = st.secrets["MONGODB_URI"]
 client = MongoClient(uri)
-mydb = client["hackathon"]
-mycol = mydb["filtered_emails"]
+
+# Connect to the correct database and collection
+mydb = client["inbox-intel"]
+mycol = mydb["mongodb_project"]
 
 def create_calendar_view(classified_emails):
     """
