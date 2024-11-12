@@ -20,6 +20,7 @@ from datetime import datetime, timedelta
 import plotly.express as px 
 import calendar
 
+
 # If modifying these scopes, delete the file token.pickle.
 # Update SCOPES to include Calendar API
 SCOPES = [
@@ -520,7 +521,7 @@ def show_email_list(category, classified_emails):
 def main():
     st.set_page_config(layout="wide")
     
-    st.title('Mail Marvel')
+    st.title('Inbox Intel')
 
     # Initialize session state variables
     if 'authenticated' not in st.session_state:
