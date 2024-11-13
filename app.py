@@ -197,24 +197,26 @@ chain = prompt | model | parser
 
 def authenticate():
     creds = None
-    
-    # Load credentials if they exist.
-    if os.path.exists('token.json'):
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-    
-    # If there are no valid credentials, go through the OAuth flow.
+    if 'token' in st.session_state:
+        creds = Credentials.from_authorized_user_info(st.session_state['token'], SCOPES)
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
+            flow = InstalledAppFlow.from_client_config(
+                {
+                    "installed": {
+                        "client_id": st.secrets["google_oauth"]["client_id"],
+                        "client_secret": st.secrets["google_oauth"]["client_secret"],
+                        "redirect_uris": ["urn:ietf:wg:oauth:2.0:oob"],
+                        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+                        "token_uri": "https://oauth2.googleapis.com/token",
+                    }
+                },
+                SCOPES
+            )
             creds = flow.run_local_server(port=0)
-        
-        # Save the credentials for future use.
-        with open('token.json', 'w') as token:
-            token.write(creds.to_json())
-    
+        st.session_state['token'] = creds.to_json()
     return creds
 
 
@@ -522,7 +524,6 @@ def show_email_list(category, classified_emails):
 
 def main():
     st.set_page_config(layout="wide")
-    
     st.title('Inbox Intel')
 
     # Initialize session state variables
@@ -549,7 +550,6 @@ def main():
                 st.session_state.calendar_service = build('calendar', 'v3', credentials=creds)
                 st.session_state.authenticated = True
                 st.success('Authentication successful!')
-
                 # Load cached data from MongoDB after authentication
                 cached_emails = load_from_mongodb()
                 if cached_emails:
@@ -557,9 +557,9 @@ def main():
                     st.session_state.classified_emails = cached_emails
                     st.session_state.email_stats = update_email_stats(cached_emails)
                 st.rerun()
-                
             except Exception as e:
                 st.error(f'Authentication failed: {str(e)}')
+                st.stop()
     else:
         # Create sidebar for navigation
         st.sidebar.title("Navigation")
