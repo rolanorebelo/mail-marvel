@@ -195,6 +195,9 @@ prompt = PromptTemplate(
 
 chain = prompt | model | parser
 
+from google_auth_oauthlib.flow import Flow
+from google.oauth2.credentials import Credentials
+
 def authenticate():
     creds = None
     if 'token' in st.session_state:
@@ -203,20 +206,25 @@ def authenticate():
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_config(
+            flow = Flow.from_client_config(
                 {
-                    "installed": {
+                    "web": {
                         "client_id": st.secrets["google_oauth"]["client_id"],
                         "client_secret": st.secrets["google_oauth"]["client_secret"],
-                        "redirect_uris": ["urn:ietf:wg:oauth:2.0:oob"],
                         "auth_uri": "https://accounts.google.com/o/oauth2/auth",
                         "token_uri": "https://oauth2.googleapis.com/token",
                     }
                 },
-                SCOPES
+                scopes=SCOPES,
+                redirect_uri="urn:ietf:wg:oauth:2.0:oob"
             )
-            creds = flow.run_local_server(port=0)
-        st.session_state['token'] = creds.to_json()
+            auth_url, _ = flow.authorization_url(prompt='consent')
+            st.write(f"Please visit this URL to authorize the application: {auth_url}")
+            auth_code = st.text_input("Enter the authorization code:")
+            if auth_code:
+                flow.fetch_token(code=auth_code)
+                creds = flow.credentials
+                st.session_state['token'] = creds.to_json()
     return creds
 
 
@@ -543,23 +551,20 @@ def main():
     # Authentication section
     if not st.session_state.authenticated:
         st.write("Please authenticate with your Google account to access Gmail.")
-        if st.button('Authenticate with Google'):
-            try:
-                creds = authenticate()
+        try:
+            creds = authenticate()
+            if creds and creds.valid:
                 st.session_state.service = build('gmail', 'v1', credentials=creds)
                 st.session_state.calendar_service = build('calendar', 'v3', credentials=creds)
                 st.session_state.authenticated = True
                 st.success('Authentication successful!')
-                # Load cached data from MongoDB after authentication
-                cached_emails = load_from_mongodb()
-                if cached_emails:
-                    st.info(f"Loaded {len(cached_emails)} previously processed emails from cache.")
-                    st.session_state.classified_emails = cached_emails
-                    st.session_state.email_stats = update_email_stats(cached_emails)
                 st.rerun()
-            except Exception as e:
-                st.error(f'Authentication failed: {str(e)}')
-                st.stop()
+            else:
+                st.warning("Please complete the authentication process.")
+        except Exception as e:
+            st.error(f'Authentication failed: {str(e)}')
+
+    # Rest of your main function code...
     else:
         # Create sidebar for navigation
         st.sidebar.title("Navigation")
